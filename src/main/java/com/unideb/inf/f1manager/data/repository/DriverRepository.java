@@ -1,4 +1,9 @@
 package com.unideb.inf.f1manager.data.repository;
 
-public class DriverRepository {
+import com.unideb.inf.f1manager.data.entity.DriverEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class DriverRepository extends JpaRepository<DriverEntity, Long>{
 }
