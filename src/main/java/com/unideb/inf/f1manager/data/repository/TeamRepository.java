@@ -5,5 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class TeamRepository extends JpaRepository<TeamEntity, Long> {
+public interface TeamRepository extends JpaRepository<TeamEntity, Long> {
+    TeamEntity getByName(String name);
+    void deleteByName(String name);
+    void deleteByNameIgnoreCase(String name);
 }

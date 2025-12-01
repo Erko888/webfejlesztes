@@ -63,5 +63,6 @@ public class TeamServiceImpl implements TeamService {
             e = teamRepository.save(e);
 
             return teamMapper.teamEntityToDto(e);
+        }
     }
 }
