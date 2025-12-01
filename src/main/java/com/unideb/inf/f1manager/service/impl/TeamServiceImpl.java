@@ -5,10 +5,10 @@ import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
 import com.unideb.inf.f1manager.service.mapper.TeamMapper;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
+import org.springframework.data.jpa.repository.Modifying;
 
-import java.lang.reflect.Type;
 import java.util.List;
 
 public class TeamServiceImpl implements TeamService {
@@ -24,7 +24,7 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDto findByName(String name) {
-        return null;
+        return modelMapper.map(teamRepository.getByName(name), TeamDto.class);
     }
 
     @Override
@@ -40,8 +40,11 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Modifying
+    @Transactional
     public void deleteByName(String name) {
-
+        teamRepository.deleteByNameIgnoreCase(name);
+        teamRepository.flush();
     }
 
     @Override
