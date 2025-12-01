@@ -2,30 +2,44 @@ package com.unideb.inf.f1manager.controller;
 
 import com.unideb.inf.f1manager.data.entity.TeamEntity;
 import com.unideb.inf.f1manager.data.repository.TeamRepository;
+import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/teams")
 public class TeamController {
-    private final TeamRepository teamRepository;
+    private final TeamService teamService;
 
-    public TeamController(TeamRepository teamRepository) {
-        this.teamRepository = teamRepository;
-    }
-    @GetMapping
-    public List<TeamEntity> getAllTeams() {
-        return teamRepository.findAll();
+    public TeamController(TeamRepository teamRepository, TeamService teamService) {
+        this.teamService = teamService;
     }
     @GetMapping("/{id}")
-    public TeamDto getTeamById(@PathVariable Long id) {
-        return teamRepository.findById(id);
+    TeamDto getTeamById(@PathVariable Long id) {
+        return teamService.findById(id);
+    }
+
+    @GetMapping("/byName/{name}")
+    TeamDto getTeamByName(@PathVariable String name) {
+        return teamService.findByName(name);
+    }
+
+    @PostMapping("/save")
+    TeamDto save(@RequestBody TeamDto teamDto) {
+        return teamService.save(teamDto);
+    }
+
+    @DeleteMapping("/deleteByName")
+    void deleteByName(@RequestParam String name) {
+        teamService.deleteByName(name);
+    }
+
+    @PostMapping("/update")
+    TeamDto update(@RequestBody TeamDto teamDto) {
+        return  teamService.save(teamDto);
     }
 
 }
