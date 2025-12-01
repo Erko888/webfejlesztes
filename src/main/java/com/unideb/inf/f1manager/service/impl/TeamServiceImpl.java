@@ -1,11 +1,27 @@
 package com.unideb.inf.f1manager.service.impl;
 
+import com.unideb.inf.f1manager.data.entity.TeamEntity;
+import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
+import com.unideb.inf.f1manager.service.mapper.TeamMapper;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 public class TeamServiceImpl implements TeamService {
+    final TeamRepository teamRepository;
+    final ModelMapper modelMapper;
+    final TeamMapper teamMapper;
+
+    public TeamServiceImpl(TeamRepository teamRepository, ModelMapper modelMapper, TeamMapper teamMapper) {
+        this.teamRepository = teamRepository;
+        this.modelMapper = modelMapper;
+        this.teamMapper = teamMapper;
+    }
+
     @Override
     public TeamDto findByName(String name) {
         return null;
@@ -13,12 +29,14 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDto findById(Long id) {
-        return null;
+        return modelMapper.map(teamRepository.getReferenceById(id), TeamDto.class);
     }
 
     @Override
     public List<TeamDto> findAll() {
-        return List.of();
+        List<TeamEntity> entities = teamRepository.findAll();
+
+        return teamMapper.teamEntityToDto(entities);
     }
 
     @Override
@@ -28,6 +46,22 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public TeamDto save(TeamDto teamDto) {
-        return null;
+        if (teamDto.getId() == null){
+            //SAVE
+            TeamEntity entity =  modelMapper
+                    .map(teamDto, TeamEntity.class);
+            entity = teamRepository.save(entity);
+            teamDto = modelMapper.map(entity, TeamDto.class);
+            return teamDto;
+        } else {
+            //UPDATE
+            TeamEntity e = teamRepository.getByName(teamDto.getName());
+
+            e.setName(teamDto.getName());
+            e.setDrivers(teamDto.getDrivers());
+
+            e = teamRepository.save(e);
+
+            return teamMapper.teamEntityToDto(e);
     }
 }
