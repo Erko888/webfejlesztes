@@ -5,9 +5,9 @@ import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
 import com.unideb.inf.f1manager.service.mapper.TeamMapper;
-import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
