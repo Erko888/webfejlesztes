@@ -1,13 +1,10 @@
 package com.unideb.inf.f1manager.controller;
 
-import com.unideb.inf.f1manager.data.entity.TeamEntity;
 import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/teams")

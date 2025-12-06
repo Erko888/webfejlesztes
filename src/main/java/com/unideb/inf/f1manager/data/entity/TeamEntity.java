@@ -18,7 +18,7 @@ public class TeamEntity {
     private long id;
     @Column(nullable = false, name = "name")
     private String name;
-    @OneToMany
+    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
     @Column(name = "drivers")
     private List<DriverEntity> drivers;
 }
