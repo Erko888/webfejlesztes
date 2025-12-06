@@ -7,10 +7,12 @@ import com.unideb.inf.f1manager.service.dto.TeamDto;
 import com.unideb.inf.f1manager.service.mapper.TeamMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public class TeamServiceImpl implements TeamService {
     final TeamRepository teamRepository;
     final ModelMapper modelMapper;

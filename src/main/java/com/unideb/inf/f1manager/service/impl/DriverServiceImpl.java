@@ -10,10 +10,12 @@ import com.unideb.inf.f1manager.service.mapper.DriverMapper;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
 public class DriverServiceImpl implements DriverService {
     final DriverRepository driverRepository;
     final ModelMapper modelMapper;
