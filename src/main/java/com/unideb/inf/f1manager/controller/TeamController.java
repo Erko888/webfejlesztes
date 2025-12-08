@@ -5,6 +5,8 @@ import com.unideb.inf.f1manager.service.TeamService;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/teams")
@@ -14,13 +16,17 @@ public class TeamController {
     public TeamController(TeamRepository teamRepository, TeamService teamService) {
         this.teamService = teamService;
     }
+    @GetMapping
+    public List<TeamDto> getTeams() {
+        return teamService.findAll();
+    }
     @GetMapping("/{id}")
     TeamDto getTeamById(@PathVariable Long id) {
         return teamService.findById(id);
     }
 
-    @GetMapping("/byName/{name}")
-    TeamDto getTeamByName(@PathVariable String name) {
+    @GetMapping("/byName")
+    TeamDto getTeamByName(@RequestParam String name) {
         return teamService.findByName(name);
     }
 
@@ -34,9 +40,9 @@ public class TeamController {
         teamService.deleteByName(name);
     }
 
-    @PostMapping("/update")
-    TeamDto update(@RequestBody TeamDto teamDto) {
-        return  teamService.save(teamDto);
+    @PutMapping("/update/{id}")
+    TeamDto update(@RequestBody TeamDto teamDto,  @PathVariable Long id) {
+        return teamService.save(teamDto);
     }
 
 }

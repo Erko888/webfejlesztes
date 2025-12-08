@@ -4,6 +4,8 @@ import com.unideb.inf.f1manager.service.DriverService;
 import com.unideb.inf.f1manager.service.dto.DriverDto;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/drivers")
 public class DriverController {
@@ -12,13 +14,18 @@ public class DriverController {
     public DriverController(DriverService driverService) {
         this.driverService = driverService;
     }
+
+    @GetMapping
+    public List<DriverDto> getDrivers() {
+        return driverService.findAll();
+    }
     @GetMapping("/{id}")
     DriverDto getTeamById(@PathVariable Long id) {
         return driverService.findById(id);
     }
 
-    @GetMapping("/byName/{name}")
-    DriverDto getTeamByName(@PathVariable String name) {
+    @GetMapping("/byName")
+    DriverDto getTeamByName(@RequestParam String name) {
         return driverService.findByName(name);
     }
 

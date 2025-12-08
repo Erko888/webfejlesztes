@@ -1,6 +1,5 @@
 package com.unideb.inf.f1manager.service.dto;
 
-import com.unideb.inf.f1manager.data.entity.DriverEntity;
 import lombok.*;
 
 import java.util.List;
@@ -15,5 +14,5 @@ import java.util.List;
 public class TeamDto {
     private Long id;
     private String name;
-    private List<DriverEntity> drivers;
+    private List<DriverDto> drivers;
 }

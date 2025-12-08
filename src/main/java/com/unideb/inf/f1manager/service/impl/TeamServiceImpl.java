@@ -1,9 +1,13 @@
 package com.unideb.inf.f1manager.service.impl;
 
+import com.unideb.inf.f1manager.data.entity.DriverEntity;
 import com.unideb.inf.f1manager.data.entity.TeamEntity;
+import com.unideb.inf.f1manager.data.repository.DriverRepository;
 import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.TeamService;
+import com.unideb.inf.f1manager.service.dto.DriverDto;
 import com.unideb.inf.f1manager.service.dto.TeamDto;
+import com.unideb.inf.f1manager.service.mapper.DriverMapper;
 import com.unideb.inf.f1manager.service.mapper.TeamMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,11 +21,16 @@ public class TeamServiceImpl implements TeamService {
     final TeamRepository teamRepository;
     final ModelMapper modelMapper;
     final TeamMapper teamMapper;
+    final DriverMapper driverMapper;
+    final DriverRepository driverRepository;
 
-    public TeamServiceImpl(TeamRepository teamRepository, ModelMapper modelMapper, TeamMapper teamMapper) {
+    public TeamServiceImpl(TeamRepository teamRepository, ModelMapper modelMapper, TeamMapper teamMapper, DriverMapper driverMapper, DriverRepository driverRepository) {
         this.teamRepository = teamRepository;
         this.modelMapper = modelMapper;
         this.teamMapper = teamMapper;
+        this.driverMapper = driverMapper;
+
+        this.driverRepository = driverRepository;
     }
 
     @Override
@@ -50,24 +59,45 @@ public class TeamServiceImpl implements TeamService {
     }
 
     @Override
+    @Transactional
     public TeamDto save(TeamDto teamDto) {
-        if (teamDto.getId() == null){
-            //SAVE
-            TeamEntity entity =  modelMapper
-                    .map(teamDto, TeamEntity.class);
-            entity = teamRepository.save(entity);
-            teamDto = modelMapper.map(entity, TeamDto.class);
-            return teamDto;
-        } else {
-            //UPDATE
-            TeamEntity e = teamRepository.getByName(teamDto.getName());
-
-            e.setName(teamDto.getName());
-            e.setDrivers(teamDto.getDrivers());
-
-            e = teamRepository.save(e);
-
-            return teamMapper.teamEntityToDto(e);
+        if (teamDto == null) {
+            throw new IllegalArgumentException("Team DTO cannot be null");
         }
+
+        TeamEntity entity = (teamDto.getId() == null)
+                ? new TeamEntity()
+                : teamRepository.findById(teamDto.getId())
+                .orElse(new TeamEntity());
+
+        entity.setName(teamDto.getName());
+        // Save the team first to get an ID if it's new
+        entity = teamRepository.save(entity);
+
+        // Handle drivers
+        if (teamDto.getDrivers() != null) {
+            entity.getDrivers().clear();
+
+            if (teamDto.getDrivers() != null) {
+                for (DriverDto driverDto : teamDto.getDrivers()) {
+                    DriverEntity driver = new DriverEntity();
+                    if (driverDto.getId() != null) {
+                        // If driver has ID, fetch existing driver
+                        driver = driverRepository.findById(driverDto.getId())
+                                .orElse(new DriverEntity());
+                    }
+                    driver.setName(driverDto.getName());
+                    driver.setNumber(driverDto.getNumber());
+                    driver.setTeam(entity);
+                    entity.getDrivers().add(driver);
+                }
+            }
+        }
+        entity = teamRepository.save(entity);
+        return teamMapper.teamEntityToDto(entity);
+    }
+
+    private TeamDto convertToDto(TeamEntity entity) {
+        return modelMapper.map(entity, TeamDto.class);
     }
 }

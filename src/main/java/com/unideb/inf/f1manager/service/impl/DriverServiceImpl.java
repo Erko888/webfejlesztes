@@ -3,11 +3,12 @@ package com.unideb.inf.f1manager.service.impl;
 import com.unideb.inf.f1manager.data.entity.DriverEntity;
 import com.unideb.inf.f1manager.data.entity.TeamEntity;
 import com.unideb.inf.f1manager.data.repository.DriverRepository;
+import com.unideb.inf.f1manager.data.repository.TeamRepository;
 import com.unideb.inf.f1manager.service.DriverService;
 import com.unideb.inf.f1manager.service.dto.DriverDto;
-import com.unideb.inf.f1manager.service.dto.TeamDto;
 import com.unideb.inf.f1manager.service.mapper.DriverMapper;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
@@ -20,11 +21,13 @@ public class DriverServiceImpl implements DriverService {
     final DriverRepository driverRepository;
     final ModelMapper modelMapper;
     final DriverMapper driverMapper;
+    final TeamRepository teamRepository;
 
-    public DriverServiceImpl(DriverRepository driverRepository, ModelMapper modelMapper, DriverMapper driverMapper) {
+    public DriverServiceImpl(DriverRepository driverRepository, ModelMapper modelMapper, DriverMapper driverMapper, TeamRepository teamRepository) {
         this.driverRepository = driverRepository;
         this.modelMapper = modelMapper;
         this.driverMapper = driverMapper;
+        this.teamRepository = teamRepository;
     }
 
     @Override
@@ -53,25 +56,33 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public DriverDto save(DriverDto driverDto) {
-        if (driverDto.getId() == null){
-            //SAVE
-            DriverEntity entity =  modelMapper
-                    .map(driverDto, DriverEntity.class);
-            entity = driverRepository.save(entity);
-            driverDto = modelMapper.map(entity, DriverDto.class);
-            return driverDto;
-        } else {
-            //UPDATE
-            DriverEntity e = driverRepository.getByName(driverDto.getName());
-
-            e.setName(driverDto.getName());
-            e.setNumber(driverDto.getNumber());
-            e.setTeam(driverDto.getTeam());
-
-            e = driverRepository.save(e);
-
-            return driverMapper.driverEntityToDto(e);
+        if (driverDto == null) {
+            throw new IllegalArgumentException("Driver DTO cannot be null");
         }
+
+        // Convert DTO to Entity
+        DriverEntity entity = (driverDto.getId() == null)
+                 ? new DriverEntity()
+                : driverRepository.findById(driverDto.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Driver not found"));
+
+        // Map fields
+        modelMapper.map(driverDto, entity);
+
+        // Handle team relationship
+        if (driverDto.getTeamId() != null) {
+            TeamEntity team = teamRepository.findById(driverDto.getTeamId())
+                    .orElseThrow(() -> new EntityNotFoundException("Team not found"));
+            entity.setTeam(team);
+        } else {
+            entity.setTeam(null);
+        }
+
+        // Save and return
+        entity = driverRepository.save(entity);
+        return modelMapper.map(entity, DriverDto.class);
     }
+
 }
