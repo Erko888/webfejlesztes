@@ -39,8 +39,8 @@ public class DriverController {
         driverService.deleteByName(name);
     }
 
-    @PostMapping("/update")
-    DriverDto update(@RequestBody DriverDto driverDto) {
+    @PutMapping("/update/{id}")
+    DriverDto update(@RequestBody DriverDto driverDto, @PathVariable Long id) {
         return  driverService.save(driverDto);
     }
 }
