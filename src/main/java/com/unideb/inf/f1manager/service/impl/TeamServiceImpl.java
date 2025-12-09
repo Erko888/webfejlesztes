@@ -97,7 +97,4 @@ public class TeamServiceImpl implements TeamService {
         return teamMapper.teamEntityToDto(entity);
     }
 
-    private TeamDto convertToDto(TeamEntity entity) {
-        return modelMapper.map(entity, TeamDto.class);
-    }
 }
