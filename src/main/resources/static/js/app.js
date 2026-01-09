@@ -95,9 +95,16 @@ function setupEventListeners() {
     }
 }
 
+// src/main/resources/static/js/app.js
+
 async function loadInitialData() {
     try {
+        // Wait for BOTH drivers and teams to finish loading
         await Promise.all([loadDrivers(), loadTeams()]);
+
+        // FIX: Re-render drivers now that we are sure 'teams' are populated
+        renderDrivers();
+
         showSection(currentTab);
     } catch (error) {
         console.error('Error loading initial data:', error);
@@ -157,10 +164,10 @@ async function loadDrivers() {
     }
 }
 
-// Render drivers in the table
+
 function renderDrivers() {
     if (!driversTableBody) return;
-    
+
     if (!drivers || drivers.length === 0) {
         driversTableBody.innerHTML = `
             <tr>
@@ -171,13 +178,18 @@ function renderDrivers() {
         return;
     }
 
-    driversTableBody.innerHTML = drivers.map(driver => `
+    driversTableBody.innerHTML = drivers.map(driver => {
+        // FIX: Find the team object using the teamId from the driver
+        // We look through the global 'teams' array to find a match
+        const team = teams.find(t => t.id === driver.teamId);
+        const teamName = team ? team.name : '—';
+
+        return `
         <tr>
             <td>${driver.id || ''}</td>
             <td>${driver.name || ''}</td>
             <td>${driver.number || '—'}</td>
-            <td>${driver.team ? driver.team.name : '—'}</td>
-            <td class="text-end">
+            <td>${teamName}</td> <td class="text-end">
                 <button class="btn btn-sm btn-outline-primary me-1" onclick="editDriver(${driver.id})">
                     <i class="bi bi-pencil"></i>
                 </button>
@@ -186,7 +198,7 @@ function renderDrivers() {
                 </button>
             </td>
         </tr>
-    `).join('');
+    `}).join('');
 }
 
 // Load teams from API
@@ -308,11 +320,11 @@ async function saveDriver() {
     }
 
     const driverData = {
-        id: driverId ? parseInt(driverId) : null,
-        name,
-        number,
-        team: { id: teamId }
-    };
+            id: driverId ? parseInt(driverId) : null,
+            name,
+            number,
+            teamId: teamId // FIX: Send teamId directly, not { team: { id: ... } }
+        };
 
     try {
         const url = driverId ? `${DRIVERS_ENDPOINT}/update/${driverId}` : `${DRIVERS_ENDPOINT}/save`;
@@ -332,6 +344,7 @@ async function saveDriver() {
         }
 
         if (driverModal) driverModal.hide();
+        await loadTeams();
         await loadDrivers();
         showToast('Success', `Driver ${driverId ? 'updated' : 'added'} successfully!`, 'success');
     } catch (error) {
@@ -392,7 +405,8 @@ window.editDriver = async (id) => {
         document.getElementById('driverId').value = driver.id;
         document.getElementById('driverName').value = driver.name || '';
         document.getElementById('driverNumber').value = driver.number || '';
-        document.getElementById('driverTeam').value = driver.team?.id || '';
+        // FIX: Access teamId directly
+            document.getElementById('driverTeam').value = driver.teamId || '';
         
         document.getElementById('driverModalTitle').textContent = 'Edit Driver';
         if (driverModal) driverModal.show();
@@ -423,6 +437,7 @@ window.deleteDriver = async (id) => {
         }
         
         await loadDrivers();
+        await loadTeams();
         showToast('Success', 'Driver deleted successfully!', 'success');
     } catch (error) {
         console.error('Error deleting driver:', error);

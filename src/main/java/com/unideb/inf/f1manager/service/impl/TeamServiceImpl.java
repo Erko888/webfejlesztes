@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class TeamServiceImpl implements TeamService {
     final TeamRepository teamRepository;
     final ModelMapper modelMapper;
@@ -47,7 +49,27 @@ public class TeamServiceImpl implements TeamService {
     public List<TeamDto> findAll() {
         List<TeamEntity> entities = teamRepository.findAll();
 
-        return teamMapper.teamEntityToDto(entities);
+        return entities.stream()
+                .map(this::mapTeamWithDrivers) // Use the helper method
+                .collect(Collectors.toList());
+    }
+
+    // Helper method to manually map the team AND its drivers
+    private TeamDto mapTeamWithDrivers(TeamEntity entity) {
+        if (entity == null) return null;
+
+        // 1. Map the basic Team fields (id, name)
+        TeamDto dto = modelMapper.map(entity, TeamDto.class);
+
+        // 2. Explicitly map the list of drivers to ensure it appears
+        if (entity.getDrivers() != null) {
+            List<DriverDto> driverDtos = entity.getDrivers().stream()
+                    .map(driver -> modelMapper.map(driver, DriverDto.class))
+                    .collect(Collectors.toList());
+            dto.setDrivers(driverDtos);
+        }
+
+        return dto;
     }
 
     @Override

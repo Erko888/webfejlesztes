@@ -21,7 +21,6 @@ public class TeamEntity {
     @Column(nullable = false, name = "name")
     private String name;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Column(name = "drivers")
     @JsonManagedReference
     private List<DriverEntity> drivers = new ArrayList<>();
 }
