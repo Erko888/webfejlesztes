@@ -20,8 +20,6 @@ public class F1managerApplication {
     @Bean
     ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
-
-        // FIX: Use STRICT strategy to prevent fuzzy matching (like teamId -> team.id)
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
         // Configure Team mapping (Entity -> DTO)
@@ -33,7 +31,6 @@ public class F1managerApplication {
         // Configure Driver mapping (Entity -> DTO)
         modelMapper.typeMap(DriverEntity.class, DriverDto.class)
                 .addMappings(mapper -> {
-                    // Explicitly map the ID because 'team.id' != 'teamId' in Strict mode
                     mapper.map(src -> src.getTeam().getId(), DriverDto::setTeamId);
                 });
 

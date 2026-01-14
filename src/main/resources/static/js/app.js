@@ -95,14 +95,10 @@ function setupEventListeners() {
     }
 }
 
-// src/main/resources/static/js/app.js
-
 async function loadInitialData() {
     try {
-        // Wait for BOTH drivers and teams to finish loading
         await Promise.all([loadDrivers(), loadTeams()]);
 
-        // FIX: Re-render drivers now that we are sure 'teams' are populated
         renderDrivers();
 
         showSection(currentTab);
@@ -179,8 +175,6 @@ function renderDrivers() {
     }
 
     driversTableBody.innerHTML = drivers.map(driver => {
-        // FIX: Find the team object using the teamId from the driver
-        // We look through the global 'teams' array to find a match
         const team = teams.find(t => t.id === driver.teamId);
         const teamName = team ? team.name : '—';
 
@@ -323,7 +317,7 @@ async function saveDriver() {
             id: driverId ? parseInt(driverId) : null,
             name,
             number,
-            teamId: teamId // FIX: Send teamId directly, not { team: { id: ... } }
+            teamId: teamId
         };
 
     try {
@@ -405,7 +399,6 @@ window.editDriver = async (id) => {
         document.getElementById('driverId').value = driver.id;
         document.getElementById('driverName').value = driver.name || '';
         document.getElementById('driverNumber').value = driver.number || '';
-        // FIX: Access teamId directly
             document.getElementById('driverTeam').value = driver.teamId || '';
         
         document.getElementById('driverModalTitle').textContent = 'Edit Driver';
@@ -484,7 +477,7 @@ window.deleteTeam = async (id) => {
         }
         
         await loadTeams();
-        await loadDrivers(); // Refresh drivers to update team references
+        await loadDrivers();
         showToast('Success', 'Team deleted successfully!', 'success');
     } catch (error) {
         console.error('Error deleting team:', error);

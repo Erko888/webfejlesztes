@@ -23,14 +23,12 @@ public class TeamServiceImpl implements TeamService {
     final TeamRepository teamRepository;
     final ModelMapper modelMapper;
     final TeamMapper teamMapper;
-    final DriverMapper driverMapper;
     final DriverRepository driverRepository;
 
-    public TeamServiceImpl(TeamRepository teamRepository, ModelMapper modelMapper, TeamMapper teamMapper, DriverMapper driverMapper, DriverRepository driverRepository) {
+    public TeamServiceImpl(TeamRepository teamRepository, ModelMapper modelMapper, TeamMapper teamMapper, DriverRepository driverRepository) {
         this.teamRepository = teamRepository;
         this.modelMapper = modelMapper;
         this.teamMapper = teamMapper;
-        this.driverMapper = driverMapper;
 
         this.driverRepository = driverRepository;
     }

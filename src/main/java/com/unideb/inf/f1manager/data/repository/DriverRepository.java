@@ -7,6 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DriverRepository extends JpaRepository<DriverEntity, Long> {
     DriverEntity getByName(String name);
-    void deleteByName(String name);
     void deleteByNameIgnoreCase(String name);
 }
